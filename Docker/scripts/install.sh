@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 
-source scripts/settings.sh
-
 # v4l2loopback
-<<<<<<< HEAD
-apt install v4l2loopback-dkms
-=======
-sudo apt install v4l2loopback-dkms
->>>>>>> initial dockerifle with python, conda, repo cloning, and install/startup scripts.
+git submodule update --init
+echo "--- Installing v4l2loopback"
+cd v4l2loopback
+make && make install
+depmod -a
+cd ../
 
 source $(conda info --base)/etc/profile.d/conda.sh
 conda create -y -n $CONDA_ENV_NAME python=3.8
