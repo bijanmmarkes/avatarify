@@ -8,6 +8,7 @@ import requests
 import imageio
 import numpy as np
 from skimage.transform import resize
+import cv2
 
 import torch
 from sync_batchnorm import DataParallelWithCallback
@@ -19,7 +20,7 @@ from scipy.spatial import ConvexHull
 
 import face_alignment
 
-import cv2
+from videocaptureasync import VideoCaptureAsync
 
 from sys import platform as _platform
 _streaming = False
@@ -140,7 +141,6 @@ def predict(driving_frame, source_image, relative, adapt_movement_scale, fa, dev
         out = generator(source, kp_source=kp_source, kp_driving=kp_norm)
 
         out = np.transpose(out['prediction'].data.cpu().numpy(), [0, 2, 3, 1])[0]
-        out = out[..., ::-1]
         out = (np.clip(out, 0, 1) * 255).astype(np.uint8)
 
         return out
@@ -184,7 +184,8 @@ if __name__ == "__main__":
     parser.add_argument("--cam", type=int, default=0, help="Webcam device ID")
     parser.add_argument("--virt-cam", type=int, default=0, help="Virtualcam device ID")
     parser.add_argument("--no-stream", action="store_true", help="On Linux, force no streaming")
-    parser.add_argument("--debug", action="store_true", help="Print debug information")
+
+    parser.add_argument("--verbose", action="store_true", help="Print additional information")
 
     parser.add_argument("--avatars", default="./avatars", help="path to avatars directory")
  
@@ -217,10 +218,12 @@ if __name__ == "__main__":
     
     fa = face_alignment.FaceAlignment(face_alignment.LandmarksType._2D, flip_input=True, device=device)
 
-    cap = cv2.VideoCapture(opt.cam)
+    # cap = cv2.VideoCapture(opt.cam)
+    cap = VideoCaptureAsync(opt.cam)
     if not cap.isOpened():
         log("Cannot open camera. Try to choose other CAMID in './scripts/settings.sh'")
         exit()
+    cap.start()
 
     ret, frame = cap.read()
     if not ret:
@@ -247,7 +250,13 @@ if __name__ == "__main__":
     output_flip = False
     find_keyframe = False
 
+    fps_hist = []
+    fps = 0
+    show_fps = False
+
     while True:
+        t_start = time.time()
+
         green_overlay = False
         
         ret, frame = cap.read()
@@ -266,15 +275,21 @@ if __name__ == "__main__":
                 green_overlay = True
                 kp_driving_initial = None
 
+        if opt.verbose:
+            preproc_time = (time.time() - t_start) * 1000
+            log(f'PREPROC: {preproc_time:.3f}ms')
+
         if passthrough:
-            out = frame
+            out = frame_orig[..., ::-1]
         else:
             pred_start = time.time()
             pred = predict(frame, avatar, opt.relative, opt.adapt_scale, fa, device=device)
             out = pred
             pred_time = (time.time() - pred_start) * 1000
-            if opt.debug:
+            if opt.verbose:
                 log(f'PRED: {pred_time:.3f}ms')
+
+        postproc_start = time.time()
 
         if not opt.no_pad:
             out = pad_img(out, frame_orig)
@@ -324,6 +339,8 @@ if __name__ == "__main__":
                 change_avatar(fa, avatar)
             except:
                 log('Failed to load StyleGAN avatar')
+        elif key == ord('i'):
+            show_fps = not show_fps
         elif 48 < key < 58:
             cur_ava = min(key - 49, len(avatars) - 1)
             passthrough = False
@@ -353,8 +370,22 @@ if __name__ == "__main__":
         if find_keyframe:
             preview_frame = cv2.putText(preview_frame, display_string, (10, 220), 0, 0.5, (255, 255, 255), 1)
 
-        cv2.imshow('cam', preview_frame)
-        cv2.imshow('avatarify', out)
+        if show_fps:
+            fps_string = f'FPS: {fps:.2f}'
+            preview_frame = cv2.putText(preview_frame, fps_string, (10, 240), 0, 0.5, (255, 255, 255), 1)
 
-    cap.release()
+        cv2.imshow('cam', preview_frame)
+        cv2.imshow('avatarify', out[..., ::-1])
+
+        if opt.verbose:
+            postproc_time = (time.time() - postproc_start) * 1000
+            log(f'POSTPROC: {postproc_time:.3f}ms')
+
+        fps_hist.append(time.time() - t_start)
+        if len(fps_hist) == 10:
+            fps = 10 / sum(fps_hist)
+            fps_hist = []
+
+    #cap.release()
+    cap.stop()
     cv2.destroyAllWindows()
