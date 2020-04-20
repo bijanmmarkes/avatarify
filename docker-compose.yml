@@ -1,6 +1,11 @@
 version: "3"
 services:
   avatarify:
+    environment:
+      - CONDA_ENV_NAME=avatarify
+      - CAMID=0
+      - CAMID_VIRT=9
+      - ENV_NAME=avatarify
     build:
       context: ./Docker
     image: bijanmmarkes/avatarify
