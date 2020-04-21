@@ -6,6 +6,8 @@ services:
       - CAMID=0
       - CAMID_VIRT=9
       - ENV_NAME=avatarify
+      - CONDA_EXE=/srv/avatarify/conda/bin/conda
+      - CONDA_PYTHON_EXE=/srv/avatarify/conda/bin/python
     build:
       context: ./Docker
     image: bijanmmarkes/avatarify
