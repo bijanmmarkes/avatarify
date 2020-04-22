@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y software-properties-common apt-utils la
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get install python3.7 -y
 RUN python3.7 -v
-ADD https://api.github.com/repos/bijanmmarkes/avatarify/git/refs/heads/dockerize-#7 version.json
 RUN git clone https://github.com/bijanmmarkes/avatarify.git /srv/avatarify
 RUN cd /srv/avatarify && git checkout dockerize-#7
 # Use the master root as the workdir
