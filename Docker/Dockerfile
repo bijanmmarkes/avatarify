@@ -9,6 +9,7 @@ RUN apt-get install -y openssh-server build-essential curl v4l2loopback-dkms git
 RUN mkdir /var/run/sshd
 # Install Apache with modules then clear apt source.lists
 RUN apt-get update && apt-get install -y software-properties-common apt-utils language-pack-en-base curl && apt-get clean && rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN apt-get install -y linux-gcp-headers-5.0.0-1031
 # Install Python 3.8
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get install python3.7 -y
