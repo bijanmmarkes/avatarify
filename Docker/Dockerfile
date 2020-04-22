@@ -37,8 +37,8 @@ RUN /bin/bash -x scripts/download_data.sh
 #RUN apt-get -y install keyboard-configuration cuda
 RUN apt-get -y install aptitude
 RUN aptitude install -y v4l2loopback-source module-assistant
-RUN module-assistant prepare
-RUN module-assistant auto-install v4l2loopback-source
+RUN module-assistant prepare -non-inter
+RUN module-assistant -non-inter auto-install v4l2loopback-source
 # Install all the required packages for Avatarify
 RUN /bin/bash -x Docker/scripts/install.sh
 # Add the startup script
