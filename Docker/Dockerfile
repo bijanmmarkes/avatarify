@@ -37,7 +37,7 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install lightdm -y
 RUN apt-get -y install keyboard-configuration cuda
 RUN apt-get -y install aptitude
-RUN aptitude install v4l2loopback-source module-assistant
+RUN aptitude install -y v4l2loopback-source module-assistant
 RUN module-assistant auto-install v4l2loopback-source -y
 # Install all the required packages for Avatarify
 RUN /bin/bash -x Docker/scripts/install.sh
