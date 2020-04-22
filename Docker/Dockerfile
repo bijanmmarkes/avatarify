@@ -9,7 +9,6 @@ RUN apt-get install -y openssh-server build-essential curl v4l2loopback-dkms git
 RUN mkdir /var/run/sshd
 # Install Apache with modules then clear apt source.lists
 RUN apt-get update && apt-get install -y software-properties-common apt-utils language-pack-en-base curl && apt-get clean && rm -fr /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN apt-get install -y linux-gcp-headers-5.0.0-1031
 # Install Python 3.8
 RUN add-apt-repository ppa:deadsnakes/ppa -y
 RUN apt-get install python3.7 -y
@@ -38,8 +37,9 @@ RUN /bin/bash -x scripts/download_data.sh
 #RUN apt-get -y install keyboard-configuration cuda
 RUN apt-get -y install aptitude
 RUN aptitude install -y v4l2loopback-source module-assistant
-RUN module-assistant prepare -non-inter
-RUN module-assistant -non-inter auto-install v4l2loopback-source
+RUN apt-get update
+RUN apt-get install -y linux-headers-$(uname -r) && apt-get update -y && apt-get upgrade -y
+RUN module-assistant auto-install v4l2loopback-source
 # Install all the required packages for Avatarify
 RUN /bin/bash -x Docker/scripts/install.sh
 # Add the startup script
