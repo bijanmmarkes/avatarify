@@ -1,0 +1,18 @@
+env:
+  matrix:
+  - DOCKER_COMPOSE_VERSION=3
+os: linux
+dist: bionic
+branches:
+  only:
+  - master
+  - dockerize-#7
+notifications:
+  email: true
+services:
+  - docker
+script:
+  - echo "Building..."
+  - docker-compose build
+  - docker login --username ${DOCKER_USERNAME} --password ${DOCKER_PASSWORD}
+  - docker push ${REPO_URL}:latest

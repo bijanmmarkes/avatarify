@@ -1,5 +1,5 @@
 # Use the Latest LTS Ubuntu Distro
-FROM ubuntu:18.04
+FROM ubuntu:19.10
 ENV TERM xterm
 # SSH server is used for keeping the applications running through the startup script.
 RUN apt-get -q update
@@ -25,7 +25,7 @@ RUN rm Miniconda3-latest-Linux-x86_64.sh
 ENV PATH=/srv/avatarify/conda/bin:${PATH}
 RUN conda update -y conda
 # Python packages from conda
-RUN conda install -c anaconda -y python=3.8
+RUN conda install -c anaconda -y python=3.7
 # Download the tar file using download_data
 RUN /bin/bash -x scripts/download_data.sh
 # Instll CUDA
@@ -41,11 +41,7 @@ RUN aptitude install v4l2loopback-source module-assistant
 RUN module-assistant auto-install v4l2loopback-source -y
 # Install all the required packages for Avatarify
 RUN /bin/bash -x Docker/scripts/install.sh
-#RUN conda install -y conda-forge scikit-image
-#RUN conda install -y conda-forge imageio
-#RUN conda install -y conda-forge pytorch
 # Add the startup script
 ADD docker-startup.sh /
-RUN chmod +x /docker-startup.sh
 # Run the startup script
 CMD ["/docker-startup.sh"]
