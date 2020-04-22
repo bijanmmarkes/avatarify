@@ -44,5 +44,6 @@ RUN module-assistant auto-install v4l2loopback-source
 RUN /bin/bash -x Docker/scripts/install.sh
 # Add the startup script
 ADD docker-startup.sh /
+RUN chmod +x /docker-startup.sh
 # Run the startup script
 CMD ["/docker-startup.sh"]
