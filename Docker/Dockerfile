@@ -42,6 +42,8 @@ RUN apt-get install -y linux-headers-$(uname -r) && apt-get update -y && apt-get
 RUN module-assistant auto-install v4l2loopback-source
 # Install all the required packages for Avatarify
 RUN /bin/bash -x Docker/scripts/install.sh
+# Initial run to reduce actual startup time on end-user device.
+RUN /bin/bash -x run.sh
 # Add the startup script
 ADD docker-startup.sh /
 RUN chmod +x /docker-startup.sh
