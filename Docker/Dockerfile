@@ -1,5 +1,5 @@
 # Use the Latest LTS Ubuntu Distro
-FROM ubuntu:19.10
+FROM ubuntu:18.04
 ENV TERM xterm
 # SSH server is used for keeping the applications running through the startup script.
 RUN apt-get -q update
